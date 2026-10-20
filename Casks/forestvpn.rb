@@ -4,8 +4,7 @@ cask "forestvpn" do
 
   # GitHub Releases of forestvpn/downloads: reachable wherever Homebrew itself is (brew fetches from GitHub),
   # free, and not a VPN brand domain an ISP can single out. The same bytes are on downloads.fvpn.net and S3.
-  url "https://github.com/forestvpn/downloads/releases/download/macos-#{version}/ForestVPN_#{version}.dmg",
-      verified: "github.com/forestvpn/downloads/"
+  url "https://github.com/forestvpn/downloads/releases/download/macos-#{version}/ForestVPN_#{version}.dmg"
   name "ForestVPN"
   desc "VPN client with a quantum-resistant tunnel"
   homepage "https://fvpn.net/"

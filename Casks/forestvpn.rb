@@ -1,0 +1,48 @@
+cask "forestvpn" do
+  version "4.0.26"
+  sha256 "baca6c537348a77c122d9c157857faa04064ae5982007bbca0eb8b99a9d0eb1b"
+
+  url "https://downloads.fvpn.net/macos/#{version}/ForestVPN_#{version}.dmg"
+  name "ForestVPN"
+  desc "VPN client with a quantum-resistant tunnel"
+  homepage "https://fvpn.net/"
+
+  livecheck do
+    url "https://downloads.fvpn.net/updates/macos/appcast.xml"
+    strategy :sparkle, &:short_version
+  end
+
+  auto_updates true
+  depends_on macos: :sonoma
+
+  app "ForestVPN.app"
+
+  # Deleting the app does not remove a system extension. The removal lives in `zap`, never in
+  # `uninstall`: Homebrew runs an uninstall `early_script` on `brew upgrade` and `brew reinstall`
+  # too (only `signal` is skipped), so the OLD app would wipe the extension store and the VPN
+  # configuration on every update. `zap` runs only on `brew uninstall --zap`.
+  # The app runs headless: wipes the extension's store, removes the VPN configuration, submits the
+  # deactivation request, exits. macOS may finish it only after a restart. The /bin/sh wrapper
+  # makes a missing app (dragged to the Trash first, or a custom --appdir) a no-op, not an error.
+  zap early_script: {
+        executable:   "/bin/sh",
+        args:         [
+          "-c", '[ -x "$0" ] && "$0" --uninstall-extension; exit 0',
+          "#{appdir}/ForestVPN.app/Contents/MacOS/ForestVPN"
+        ],
+        must_succeed: false,
+      },
+      trash:        [
+        "~/Library/Application Scripts/com.forestvpn.mac",
+        "~/Library/Containers/com.forestvpn.mac",
+        "~/Library/Group Containers/*.group.com.forestvpn.mac",
+      ]
+
+  caveats <<~EOS
+    On first launch, allow the ForestVPN network extension in
+    System Settings > General > Login Items & Extensions > Network Extensions.
+    `brew uninstall --cask forestvpn` leaves the network extension in place (an upgrade must not remove it).
+    To remove it: ForestVPN > Settings > Remove network extension, or `brew uninstall --zap --cask forestvpn`
+    (this also removes the VPN configuration; macOS may finish the removal at the next restart).
+  EOS
+end

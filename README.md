@@ -1,7 +1,8 @@
 # Homebrew tap for ForestVPN (direct Mac edition)
 
 `brew install --cask forestvpn/tap/forestvpn` installs the Developer ID build of ForestVPN for Mac
-(the notarized DMG on `downloads.fvpn.net`, docs/decisions/0134). The Mac App Store build is a different
+(the notarized DMG, downloaded from the GitHub Releases of `forestvpn/downloads`, docs/decisions/0134; the same bytes
+are on `downloads.fvpn.net` and its S3 mirror). The Mac App Store build is a different
 app with a different bundle id; they are not meant to run side by side.
 
 ## Layout
@@ -30,6 +31,12 @@ says all of this. Homebrew's own core cask repo is not a target: it asks for not
 ```bash
 task macos:dmg VERSION=<APP>        # builds, notarizes and writes dist/macos/<v>/ForestVPN_<v>.dmg.sha256
 task macos:publish VERSION=<APP>    # the DMG must be live on both mirrors BEFORE the cask points at it
+# the cask downloads from GitHub Releases (owner 2026-10-20: free, and not a domain an ISP can single out). Publish the
+# SAME bytes there before the cask points at them; a release is never replaced, a fix is a new version:
+printf '%s  ForestVPN_<APP>.dmg\n' "$(cut -c1-64 dist/macos/<APP>/ForestVPN_<APP>.dmg.sha256)" > /tmp/ForestVPN_<APP>.dmg.sha256
+gh release create macos-<APP> --repo forestvpn/downloads --title "ForestVPN for Mac <APP> (<build>)" \
+  dist/macos/<APP>/ForestVPN_<APP>.dmg /tmp/ForestVPN_<APP>.dmg.sha256
+curl -sL https://github.com/forestvpn/downloads/releases/download/macos-<APP>/ForestVPN_<APP>.dmg | shasum -a 256   # == the .sha256
 task macos:cask VERSION=<APP>       # renders dist/macos/<v>/forestvpn.rb from that sha256
 # then, in a checkout of forestvpn/homebrew-tap:
 cp <fvpn>/dist/macos/<v>/forestvpn.rb Casks/forestvpn.rb

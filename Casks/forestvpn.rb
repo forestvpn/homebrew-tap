@@ -1,6 +1,6 @@
 cask "forestvpn" do
-  version "4.1.0"
-  sha256 "94d78f186f89082b38e166a0dea2925242d70ba1aed2a24c66325f84c6b3bc3a"
+  version "4.2.0"
+  sha256 "cabf2983056d8787b76a30a46a039c1f50219f0a919eef09ea600085cedf59e0"
 
   # GitHub Releases of forestvpn/downloads: reachable wherever Homebrew itself is (brew fetches from GitHub),
   # free, and not a VPN brand domain an ISP can single out. The same bytes are on downloads.fvpn.net and S3.
